@@ -1,56 +1,57 @@
+import os
 import requests
+from dotenv import load_dotenv
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL_NAME = "llama3.1:8b"
+load_dotenv()
+
+HF_API_KEY = os.getenv("HF_API_KEY")
+
+# Choose your cloud LLM model (free options available)
+HF_MODEL = "mistralai/Mistral-7B-Instruct"  
+# You may also use: "meta-llama/Llama-3.1-8B-Instruct"
+
+API_URL = f"https://api-inference.huggingface.co/models/{HF_MODEL}"
+
+HEADERS = {
+    "Authorization": f"Bearer {HF_API_KEY}",
+    "Content-Type": "application/json"
+}
 
 def ask_llm(context, question):
-    """
-    Sends the question + compressed context to the LLaMA model using Ollama.
-    Ensures exam-style, descriptive answers in the tone/language of your notes.
-    """
+    prompt = f"""
+You are a knowledgeable study assistant. Answer clearly and in exam-friendly descriptive style.
+Do NOT change the tone or language style from the student's notes.
 
-    # ---- Safety trims (Prevent slowdowns or freezing) ----
-    if context is None:
-        context = ""
-    context = context.strip()[:4000]  # limit to avoid huge prompts
+Context:
+{context}
 
-    # ---- System instruction for exam-style answers ----
-    system_instruction = """
-    You are an academic tutor specialized in writing exam-ready answers.
+Question:
+{question}
 
-    IMPORTANT RULES:
-    - ALWAYS answer in the same tone, style, and language as the provided notes.
-    - Your answer must be descriptive, structured, and suitable for college exams.
-    - Never add unnecessary humor, casual tone, or creative writing.
-    - If the notes contain definitions, laws, or formulas, replicate them precisely.
-    - If the user asks something outside the notes, answer normally but academically.
-    """
+Answer:
+"""
 
-    # ---- Construct final prompt ----
-    final_prompt = f"""
-    {system_instruction}
-
-    CONTEXT FROM NOTES:
-    {context}
-
-    QUESTION FROM STUDENT:
-    {question}
-
-    PROVIDE THE FINAL ANSWER BELOW:
-    """
-
-    # ---- Payload for Ollama ----
     payload = {
-        "model": MODEL_NAME,
-        "prompt": final_prompt,
-        "stream": False        # FIXED: ensures a single JSON output (required!)
+        "inputs": prompt,
+        "parameters": {
+            "max_new_tokens": 350,
+            "temperature": 0.4,
+            "top_p": 0.9
+        }
     }
 
-    # ---- Perform request ----
+    response = requests.post(API_URL, headers=HEADERS, json=payload)
+
     try:
-        response = requests.post(OLLAMA_URL, json=payload)
-        data = response.json()     # works now because stream=False
-        return data.get("response", "").strip()
+        output = response.json()
+
+        # HF returns a list of dicts
+        if isinstance(output, list):
+            return output[0]["generated_text"]
+        if "generated_text" in output:
+            return output["generated_text"]
+
+        return "Error: Unexpected API format"
 
     except Exception as e:
-        return f"❌ LLM Error: {str(e)}"
+        return f"LLM Error: {str(e)}"

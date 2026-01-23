@@ -9,3 +9,5 @@ Pillow
 gTTS
 requests
 python-multipart
+python-dotenv
+requests
