@@ -11,9 +11,10 @@ services:
         sync: false
     plan: free
 
-staticSites:
-  - name: ai-frontend
+  - type: web
+    name: ai-frontend
+    env: static
     rootDir: frontend
     buildCommand: ""
-    publishPath: .
+    staticPublishPath: .
     plan: free
