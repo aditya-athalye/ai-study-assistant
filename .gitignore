@@ -1,0 +1,26 @@
+# Ignore virtual environment
+venv/
+
+# Ignore python cache
+__pycache__/
+*.pyc
+
+# Ignore uploads (audio + pdfs)
+backend/uploads/
+
+# Ignore vector DB
+backend/notes_db/
+
+# Ignore large files
+*.mp3
+*.wav
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore environment variables
+.env
+
+# Ignore Ollama models
+~/.ollama/

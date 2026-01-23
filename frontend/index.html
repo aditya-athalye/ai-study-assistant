@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Tutor</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-container">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar glass">
+        <h1>AI Tutor</h1>
+
+        <button class="new-chat">+ New Chat</button>
+
+        <h3 class="section-title">Tools</h3>
+
+        <!-- Upload Notes -->
+        <div class="tool-block">
+            <label>Upload Notes</label>
+            <input id="notesFile" type="file">
+            <button onclick="uploadNotes()">Upload</button>
+        </div>
+
+        <!-- Voice to Text -->
+        <div class="tool-block">
+            <label>Voice → Text</label>
+            <input id="voiceFile" type="file" accept="audio/*">
+            <button onclick="convertVoice()">Convert</button>
+        </div>
+
+        <!-- Text to Voice -->
+        <div class="tool-block">
+            <label>Text → Voice</label>
+            <button onclick="textToVoice()">🔊 Play Answer</button>
+        </div>
+    </div>
+
+
+    <!-- CHAT AREA -->
+    <div class="chat-area glass">
+        <div id="chatBox" class="chat-box"></div>
+
+        <div class="input-area">
+            <input id="userInput" type="text" placeholder="Ask anything...">
+            <button class="send-btn" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

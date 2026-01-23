@@ -1,0 +1,125 @@
+body {
+    margin: 0;
+    font-family: "Inter", sans-serif;
+    background: radial-gradient(circle at top, #1e1e1e, #000);
+    color: white;
+    height: 100vh;
+}
+
+.app-container {
+    display: flex;
+    height: 100vh;
+    padding: 20px;
+    gap: 20px;
+}
+
+.glass {
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(18px);
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 20px;
+}
+
+.sidebar {
+    width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sidebar h1 {
+    font-size: 26px;
+    margin-bottom: 10px;
+}
+
+.new-chat {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    background: rgba(147, 51, 234, 0.25);
+    color: white;
+    font-size: 16px;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.section-title {
+    margin-top: 10px;
+    font-size: 18px;
+    opacity: 0.8;
+}
+
+.tool-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tool-block button {
+    padding: 10px;
+    border-radius: 12px;
+    border: none;
+    background: rgba(147, 51, 234, 0.25);
+    color: white;
+    cursor: pointer;
+}
+
+.chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+}
+
+.chat-box {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-right: 10px;
+}
+
+.chat-message {
+    max-width: 70%;
+    padding: 14px;
+    border-radius: 15px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    font-size: 15px;
+}
+
+.chat-message.user {
+    align-self: flex-end;
+    background: linear-gradient(45deg, #8b5cf6, #7c3aed);
+}
+
+.chat-message.ai {
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.input-area {
+    display: flex;
+    gap: 10px;
+}
+
+.input-area input {
+    flex: 1;
+    padding: 14px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    font-size: 16px;
+}
+
+.send-btn {
+    background: #8b5cf6;
+    border: none;
+    width: 55px;
+    border-radius: 12px;
+    font-size: 22px;
+    cursor: pointer;
+}
