@@ -1,9 +1,0 @@
-[build]
-builder = "NIXPACKS"
-
-[deploy]
-numReplicas = 1
-startCommand = "uvicorn backend.main:app --host 0.0.0.0 --port ${PORT}"
-restartPolicyType = "on_failure"
-healthcheckPath = "/"
-healthcheckTimeout = 100

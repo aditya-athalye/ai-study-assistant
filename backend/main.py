@@ -4,26 +4,27 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
 
-# Import your local modules
-# Note: These use relative imports (e.g., .llm) assuming you run this as a module
 from .llm import ask_llm
 from .vectordb import add_notes_to_db, search_notes
 from .voice import speech_to_text, text_to_speech
 
 app = FastAPI()
 
-# PORT for Railway/Render
+# -------------------------
+# CONFIGURATION
+# -------------------------
+# Render provides the PORT environment variable
 PORT = int(os.getenv("PORT", 10000))
 
-# Upload folder setup
-# We use /tmp for Render because other folders are read-only in some environments
+# Use /tmp for uploads (Render's disk is ephemeral, so /tmp is the safe place)
 UPLOAD_FOLDER = "/tmp/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# CORS Configuration
+# -------------------------
+# MIDDLEWARE
+# -------------------------
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -33,14 +34,14 @@ app.add_middleware(
 )
 
 # -------------------------
-# 1. SERVE UPLOADED FILES
+# STATIC MOUNTS
 # -------------------------
+# Serve uploaded files
 app.mount("/uploads", StaticFiles(directory=UPLOAD_FOLDER), name="uploads")
 
 # -------------------------
-# 2. API ROUTES
+# API ROUTES
 # -------------------------
-
 @app.post("/ask")
 async def ask(question: str = Form(...)):
     context = search_notes(question)
@@ -52,9 +53,8 @@ async def upload_notes(file: UploadFile = File(...)):
     file_path = f"{UPLOAD_FOLDER}/{file.filename}"
     with open(file_path, "wb") as f:
         f.write(await file.read())
-
+    
     add_notes_to_db(file_path)
-
     return {"message": "Notes uploaded successfully!"}
 
 @app.post("/voice-to-text")
@@ -69,21 +69,12 @@ async def vtt(file: UploadFile = File(...)):
 @app.post("/text-to-voice")
 async def ttv(text: str = Form(...)):
     audio_path = text_to_speech(text)
-    # The frontend expects a relative path like "uploads/filename.mp3"
-    # Ensure text_to_speech returns a path that works with the /uploads mount
     return {"audio": audio_path}
 
 # -------------------------
-# 3. SERVE FRONTEND (STATIC FILES)
+# FRONTEND SERVING
 # -------------------------
-# This MUST come after the API routes so it doesn't block them.
-
-# Get the absolute path to the "static" folder inside "backend"
-# This ensures it works correctly on Render regardless of the working directory
+# Mount the static directory to serve HTML/CSS/JS
 static_path = os.path.join(os.path.dirname(__file__), "static")
-
-# Check if directory exists to avoid startup errors if you forgot to create it
 if os.path.exists(static_path):
     app.mount("/", StaticFiles(directory=static_path, html=True), name="static")
-else:
-    print(f"WARNING: Static folder not found at {static_path}. Frontend will not load.")
