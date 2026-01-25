@@ -4,54 +4,68 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-HF_API_KEY = os.getenv("HF_API_KEY")
-
-# Choose your cloud LLM model (free options available)
-HF_MODEL = "mistralai/Mistral-7B-Instruct"  
-# You may also use: "meta-llama/Llama-3.1-8B-Instruct"
-
-API_URL = f"https://api-inference.huggingface.co/models/{HF_MODEL}"
-
-HEADERS = {
-    "Authorization": f"Bearer {HF_API_KEY}",
-    "Content-Type": "application/json"
-}
+# ============================================
+# GROQ API CONFIGURATION (Fast & Free)
+# ============================================
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 def ask_llm(context, question):
-    prompt = f"""
-You are a knowledgeable study assistant. Answer clearly and in exam-friendly descriptive style.
-Do NOT change the tone or language style from the student's notes.
-
-Context:
+    """
+    Using Groq API for fast LLM inference
+    Model: Llama 3.3 70B (via Groq's LPU)
+    """
+    
+    API_URL = "https://api.groq.com/openai/v1/chat/completions"
+    
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    
+    # Construct messages in chat format
+    messages = [
+        {
+            "role": "system",
+            "content": "You are a knowledgeable study assistant. Answer clearly and in exam-friendly descriptive style. Use the context provided to answer questions accurately."
+        },
+        {
+            "role": "user",
+            "content": f"""Context from notes:
 {context}
 
-Question:
-{question}
+Question: {question}
 
-Answer:
-"""
-
-    payload = {
-        "inputs": prompt,
-        "parameters": {
-            "max_new_tokens": 350,
-            "temperature": 0.4,
-            "top_p": 0.9
+Provide a clear, descriptive answer based on the context above."""
         }
+    ]
+    
+    payload = {
+        "model": "llama-3.3-70b-versatile",
+        "messages": messages,
+        "temperature": 0.4,
+        "max_tokens": 500,
+        "top_p": 0.9
     }
-
-    response = requests.post(API_URL, headers=HEADERS, json=payload)
-
+    
     try:
-        output = response.json()
-
-        # HF returns a list of dicts
-        if isinstance(output, list):
-            return output[0]["generated_text"]
-        if "generated_text" in output:
-            return output["generated_text"]
-
-        return "Error: Unexpected API format"
-
+        response = requests.post(API_URL, headers=headers, json=payload, timeout=30)
+        response.raise_for_status()
+        
+        data = response.json()
+        answer = data["choices"][0]["message"]["content"]
+        
+        return answer
+    
+    except requests.exceptions.Timeout:
+        return "Error: Request timed out. Please try again."
+    
+    except requests.exceptions.HTTPError as e:
+        if response.status_code == 401:
+            return "Error: Invalid API key. Please check your GROQ_API_KEY in .env file."
+        elif response.status_code == 429:
+            return "Error: Rate limit reached. Please wait a moment and try again."
+        else:
+            return f"API Error: {str(e)}"
+    
     except Exception as e:
-        return f"LLM Error: {str(e)}"
+        return f"Error: {str(e)}"
