@@ -15,7 +15,7 @@ app = FastAPI()
 PORT = int(os.getenv("PORT", 10000))
 
 # Upload folder for Railway
-UPLOAD_FOLDER = "/mnt/data/uploads"
+UPLOAD_FOLDER = "/tmp/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # CORS
