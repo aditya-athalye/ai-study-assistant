@@ -5,32 +5,37 @@
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.68-009688?style=for-the-badge&logo=fastapi&logoColor=white)
 ![Render](https://img.shields.io/badge/Render-Deployed-46E3B7?style=for-the-badge&logo=render&logoColor=white)
 
-This isn't just a chatbot; it is a documentation of my journey into the world of **LLMs, APIs, and Software Deployment**.
+This isn't just a chatbot; it is a documentation of my deep dive into the world of **LLMs, APIs, and Software Deployment**.
 
-I started this project as a complete beginner with a simple goal: *"I want to build an AI that knows my notes."* What followed was a weeks-long crash course in Python, memory management, and the painful reality of cloud hosting.
+I started this project as a complete beginner with a simple goal: *"I want to build an AI that knows my notes."* What followed was a crash course in Python, memory management, and the painful reality of cloud hosting vs. local hardware.
 
 ---
 
 ## 📂 Repository Contents
-This repository contains **two versions** of the application, representing the different stages of my learning process:
+This repository contains **two complete versions** of the application, representing the different stages of my engineering process:
 
-1.  **☁️ The Cloud Version (Main Branch):**
-    * *Status:* **Live & Deployed**
-    * *Tech:* Groq API (Llama 3.3), Lightweight Vector Search, Static Frontend.
-    * *Why:* Optimized to run on **Render's Free Tier** (512MB RAM limit).
+### 1. ☁️ The Cloud Version (Main Branch)
+* **Status:** **Live & Deployed**
+* **Engine:** Groq API (Llama 3.3)
+* **Storage:** Lightweight In-Memory Vector Search
+* **Hosting:** Render (Optimized for 512MB RAM limit)
+* **Why:** Re-engineered from scratch to solve the "it won't deploy" problem.
 
-2.  **💻 The Local Version (`/local_heavy_version`):**
-    * *Status:* **Legacy / Experimental**
-    * *Tech:* **Ollama** (Local Llama 3), **EasyOCR** (Handwriting), **Whisper** (Offline Voice).
-    * *Why:* The original "powerhouse" version that runs offline but requires heavy hardware (GPU + 8GB RAM).
+### 2. 💻 The Local Version (`/local_heavy_version`)
+* **Status:** **Legacy / Experimental**
+* **Engine:** **Ollama** (Running Llama 3 locally)
+* **Voice:** **OpenAI Whisper** (Offline Speech-to-Text)
+* **Embeddings:** **SentenceTransformers** (all-MiniLM-L6-v2) + NumPy
+* **OCR/PDF:** **pdfplumber**
+* **Why:** The original "powerhouse" version that runs 100% offline but requires heavy hardware (GPU + 8GB+ RAM).
 
 ---
 
-## 🚀 The Story: Anatomy of a Struggle
+## 🚀 The Story:
 
 ### Phase 1: "I want to run everything locally!" 💻
 I started with a dream: a privacy-focused AI that runs 100% offline. I didn't want to use APIs; I wanted to own the stack.
-* **The Stack:** I successfully built a backend using **FastAPI**, integrated **Ollama** for the LLM, **EasyOCR** for reading handwriting, and **OpenAI Whisper** for voice.
+* **The Stack:** I successfully built a backend using **FastAPI**, integrated **Ollama** for the LLM, and **Whisper** for voice.
 * **The Struggle:**
     * *Dependency Hell:* I spent days just figuring out why `numpy` needed `gcc` or why `torch` versions were conflicting.
     * *The "Context" Problem:* I learned the hard way that you can't just "feed a PDF" to an AI. I had to learn about **Chunking** and **Vector Embeddings** to stop the AI from hallucinating.
@@ -38,8 +43,8 @@ I started with a dream: a privacy-focused AI that runs 100% offline. I didn't wa
 
 ### Phase 2: The "It Won't Deploy" Reality Check 🛑
 Once the app was perfect on my laptop, I tried to show it to the world. I thought deployment was just "uploading code." I was wrong.
-* **Attempt 1 (Railway):** They removed their free tier.
-* **Attempt 2 (Oracle Cloud):** I couldn't even get past the sign-up page.
+* **Attempt 1 (Railway):** Free tier removed.
+* **Attempt 2 (Oracle Cloud):** Couldn't bypass the sign-up restrictions.
 * **Attempt 3 (Render):** My app crashed instantly.
 * **The Realization:** My local app used 6GB+ of RAM. Render's free tier gives you **512MB**. My app was trying to fit an elephant into a matchbox.
 
@@ -103,16 +108,16 @@ Beyond the code, I learned the invisible things that tutorials don't tell you:
     ```bash
     pip install -r requirements.txt
     ```
+    *(Requirements include: `fastapi`, `uvicorn`, `gtts`, `sentence-transformers`, `pdfplumber`, `numpy`, `whisper-timestamped`)*
 
 3.  **Run the Server:**
     ```bash
-    uvicorn main:app --reload
+    uvicorn backend.main:app --reload
     ```
 
 ---
 
-## 🔮 Future Updates
-* [ ] Add browser-based Voice-to-Text (WebSpeech API) to replace the heavy Whisper model.
+## 🔮 Possible Future Improvements 
 * [ ] Improve the search algorithm using lightweight embeddings (TF-IDF).
 * [ ] Add a user login system.
 

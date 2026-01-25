@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+gtts
+requests
+sentence-transformers
+pdfplumber
+numpy
+whisper-timestamped
+pydub
+python-multipart
