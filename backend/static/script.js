@@ -29,7 +29,8 @@ async function sendMessage() {
     const formData = new FormData();
     formData.append("question", question);
 
-    const res = await fetch("http://127.0.0.1:8000/ask", {
+    // FIX: Removed "http://127.0.0.1:8000" to make it work on Render
+    const res = await fetch("/ask", {
         method: "POST",
         body: formData,
     });
@@ -41,7 +42,7 @@ async function sendMessage() {
     appendMessage(answer, "ai");
 }
 
-// ENTER KEY
+// ENTER KEY LISTENER
 document.getElementById("userInput").addEventListener("keydown", function (e) {
     if (e.key === "Enter") {
         e.preventDefault();
@@ -59,7 +60,8 @@ async function uploadNotes() {
     const formData = new FormData();
     formData.append("file", fileInput.files[0]);
 
-    await fetch("http://127.0.0.1:8000/upload-notes", {
+    // FIX: Removed localhost URL
+    await fetch("/upload-notes", {
         method: "POST",
         body: formData,
     });
@@ -77,7 +79,8 @@ async function convertVoice() {
     const formData = new FormData();
     formData.append("file", fileInput.files[0]);
 
-    const res = await fetch("http://127.0.0.1:8000/voice-to-text", {
+    // FIX: Removed localhost URL
+    const res = await fetch("/voice-to-text", {
         method: "POST",
         body: formData,
     });
@@ -97,12 +100,14 @@ async function textToVoice() {
     const formData = new FormData();
     formData.append("text", lastAnswerText);
 
-    const res = await fetch("http://127.0.0.1:8000/text-to-voice", {
+    // FIX: Removed localhost URL
+    const res = await fetch("/text-to-voice", {
         method: "POST",
         body: formData,
     });
 
     const data = await res.json();
 
-    new Audio("http://127.0.0.1:8000/" + data.audio).play();
+    // FIX: Added "/" to ensure it points to the root of the current site
+    new Audio("/" + data.audio).play();
 }
