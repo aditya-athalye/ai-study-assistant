@@ -5,6 +5,5 @@ python-multipart
 python-dotenv
 requests
 PyPDF2
-pinecone-client
-sentence-transformers
+pineconesentence-transformers
 numpy

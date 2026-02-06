@@ -56,16 +56,17 @@ Provide a clear, descriptive answer based on the context above."""
         
         return answer
     
-    except requests.exceptions.Timeout:
-        return "Error: Request timed out. Please try again."
-    
     except requests.exceptions.HTTPError as e:
-        if response.status_code == 401:
+        # SPECIFIC FIX: Handle Rate Limits (429) gently
+        if response.status_code == 429:
+            return "Server busy, please wait 10 seconds and try again."
+        elif response.status_code == 401:
             return "Error: Invalid API key. Please check your GROQ_API_KEY in .env file."
-        elif response.status_code == 429:
-            return "Error: Rate limit reached. Please wait a moment and try again."
         else:
             return f"API Error: {str(e)}"
+    
+    except requests.exceptions.Timeout:
+        return "Error: Request timed out. The server is taking too long."
     
     except Exception as e:
         return f"Error: {str(e)}"
