@@ -8,31 +8,30 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 def extract_text(path):
     """
     Extracts text from PDF, TXT, or Images using Gemini Vision.
-    Capable of reading handwriting.
+    Respects original filename case to prevent 'No such file' errors.
     """
+    # 1. Check if file exists (Crucial step)
     if not os.path.exists(path):
+        print(f"[ERROR] File not found at path: {path}")
         return ""
 
+    # 2. Get extension safely
     ext = os.path.splitext(path)[1].lower()
     
     try:
-        # 1. Image Handling (Handwriting OCR)
-        if ext in [".jpg", ".jpeg", ".png", ".webp"]:
+        # Image Handling (Handwriting OCR)
+        if ext in [".jpg", ".jpeg", ".png", ".webp", ".heic"]:
             print(f"[INFO] Analyzing Image with Gemini Vision: {path}")
             model = genai.GenerativeModel('gemini-1.5-flash')
-            
             with open(path, "rb") as image_file:
                 image_data = image_file.read()
-                
             response = model.generate_content([
-                "Transcribe the text in this image exactly. If it is handwriting, convert it to digital text.",
+                "Transcribe the text in this image exactly.",
                 {"mime_type": "image/jpeg", "data": image_data}
             ])
-            return response.text
+            return response.text if response else ""
 
-        # 2. PDF Handling (Hybrid: PyPDF2 first, then Vision if needed)
-        # Note: For free tier speed, we stick to standard PyPDF2 for PDFs 
-        # unless you want to upload PDF Images (scans).
+        # PDF Handling (Standard)
         elif ext == ".pdf":
             reader = PyPDF2.PdfReader(path)
             text = ""
@@ -40,7 +39,7 @@ def extract_text(path):
                 text += p.extract_text() or ""
             return text
 
-        # 3. TXT Handling
+        # TXT Handling
         elif ext == ".txt":
             with open(path, "r", encoding="utf-8") as f:
                 return f.read()
