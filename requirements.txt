@@ -5,5 +5,5 @@ python-dotenv
 requests
 PyPDF2
 pinecone
-fastembed  # <--- The lightweight replacement for sentence-transformers
+google-generativeai
 numpy
