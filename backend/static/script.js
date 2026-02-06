@@ -1,6 +1,13 @@
 let lastAnswerText = "";
 
 // ----------------------------------
+// SESSION MANAGEMENT
+// ----------------------------------
+// Generate a unique ID for this browser tab. Resets on refresh.
+const session_id = "sess_" + Math.random().toString(36).substr(2, 9);
+console.log("Current Session ID:", session_id);
+
+// ----------------------------------
 // ADD MESSAGE TO CHAT
 // ----------------------------------
 function appendMessage(text, sender) {
@@ -28,18 +35,23 @@ async function sendMessage() {
 
     const formData = new FormData();
     formData.append("question", question);
+    formData.append("session_id", session_id); // Send ID so AI knows which notes to check
 
-    // FIX: Removed "http://127.0.0.1:8000" to make it work on Render
-    const res = await fetch("/ask", {
-        method: "POST",
-        body: formData,
-    });
+    try {
+        const res = await fetch("/ask", {
+            method: "POST",
+            body: formData,
+        });
 
-    const data = await res.json();
-    const answer = data.answer;
+        const data = await res.json();
+        const answer = data.answer;
 
-    lastAnswerText = answer;
-    appendMessage(answer, "ai");
+        lastAnswerText = answer;
+        appendMessage(answer, "ai");
+    } catch (err) {
+        console.error(err);
+        appendMessage("Error: Could not connect to the server.", "ai");
+    }
 }
 
 // ENTER KEY LISTENER
@@ -57,20 +69,34 @@ async function uploadNotes() {
     const fileInput = document.getElementById("notesFile");
     if (!fileInput.files.length) return alert("Choose a file.");
 
+    // ADMIN TRICK: Hold SHIFT while clicking "Upload" to make files permanent (Global)
+    const isAdmin = window.event.shiftKey; 
+
     const formData = new FormData();
     formData.append("file", fileInput.files[0]);
+    formData.append("session_id", session_id);
+    formData.append("is_admin", isAdmin); 
 
-    // FIX: Removed localhost URL
-    await fetch("/upload-notes", {
-        method: "POST",
-        body: formData,
-    });
+    if (isAdmin) {
+        alert("Uploading as ADMIN... This file will be visible to everyone forever.");
+    }
 
-    alert("Notes uploaded!");
+    try {
+        const res = await fetch("/upload-notes", {
+            method: "POST",
+            body: formData,
+        });
+
+        const data = await res.json();
+        alert(data.message);
+    } catch (err) {
+        console.error(err);
+        alert("Upload failed.");
+    }
 }
 
 // ----------------------------------
-// VOICE → TEXT
+// VOICE → TEXT (No changes needed)
 // ----------------------------------
 async function convertVoice() {
     const fileInput = document.getElementById("voiceFile");
@@ -79,7 +105,6 @@ async function convertVoice() {
     const formData = new FormData();
     formData.append("file", fileInput.files[0]);
 
-    // FIX: Removed localhost URL
     const res = await fetch("/voice-to-text", {
         method: "POST",
         body: formData,
@@ -92,7 +117,7 @@ async function convertVoice() {
 }
 
 // ----------------------------------
-// TEXT → VOICE
+// TEXT → VOICE (No changes needed)
 // ----------------------------------
 async function textToVoice() {
     if (!lastAnswerText) return alert("No answer yet.");
@@ -100,14 +125,11 @@ async function textToVoice() {
     const formData = new FormData();
     formData.append("text", lastAnswerText);
 
-    // FIX: Removed localhost URL
     const res = await fetch("/text-to-voice", {
         method: "POST",
         body: formData,
     });
 
     const data = await res.json();
-
-    // FIX: Added "/" to ensure it points to the root of the current site
     new Audio("/" + data.audio).play();
 }
